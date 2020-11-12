@@ -1,0 +1,5 @@
+.idea/
+local.log
+venv/
+messenger/__pycache__/
+store/__pycache__/
