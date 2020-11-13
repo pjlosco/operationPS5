@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 import requests
 import urllib.request
 import urllib.parse
@@ -6,14 +8,14 @@ import json
 
 class TargetClient:
 
-
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0",
     }
 
     def __init__(self):
         s = requests.session()
-        s.get('https://www.target.com')
+        site = "https://www.target.com"
+        s.get(site)
 
         key = s.cookies['visitorId']
         location = s.cookies['GuestLocation'].split('|')[0]
@@ -23,7 +25,7 @@ class TargetClient:
                 location, key)).json()
         self.store_id = store_id[0]['locations'][0]['location_id']
         self.custom_header = self.HEADERS
-        self.custom_header["Referer"] = "https://target.com/"
+        self.custom_header["Referer"] = site
         self.custom_header["Accept"] = "application/json"
 
     def check_availability(self, product_info) -> int:

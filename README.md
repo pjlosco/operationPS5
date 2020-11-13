@@ -3,11 +3,8 @@
 ## Development
 Start in `main.py` to see the flow the app. 
 
-## Testing
-Mixture of `pytest` and `tox` to auto run tests found in the `tests/`
-directory. 
-
 ## Deployment
-TODO
-
-# Resources
+    
+    crontab -e
+ 
+    */2 * * * * /path/to/code/operationPS5/check.sh > /path/to/code/operationPS5/cronresult.log

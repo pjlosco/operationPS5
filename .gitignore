@@ -3,3 +3,4 @@ local.log
 venv/
 messenger/__pycache__/
 store/__pycache__/
+cronresult.log

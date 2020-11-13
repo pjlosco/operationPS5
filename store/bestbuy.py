@@ -1,38 +1,30 @@
-from bestbuy import BestBuyAPI
-from bs4 import BeautifulSoup
+from lxml import html
+import requests
 
 
 class BestBuyClient:
 
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'
+    }
+
     def __init__(self):
-        self.bb = BestBuyAPI("apiToken")
+        self.site = "https://www.bestbuy.com/"
+        self.custom_header = self.HEADERS
+        self.custom_header["Referer"] = self.site
+        self.custom_header["Accept"] = "application/json"
 
-    def search_products_by_sku(self, sku: str = None):
-        return self.bb.products.search(query=f"sku={sku}", format="json")
-
-    def search_products_by_category(self, category_id: str = None):
-        return self.bb.category.search_by_id(category_id=f"{category_id}", format="json")
-
-    def get_all_categories(self):
-        return self.bb.bulk.archive("categories", "json")
-
-    @staticmethod
-    def check_availability(product_info, webdriver) -> bool:
-        try:
-            # Get the contents of the URL
-            webdriver.get(product_info["bestbuy_link"])
-
-            # returns the inner HTML as a string
-            inner_html = webdriver.page_source
-
-            # turns the html into an object to use with BeautifulSoup library
-            soup = BeautifulSoup(inner_html, "html.parser")
-            tag = soup.find('button', "add-to-cart-button")
-            if tag.text == "Coming Soon":
-                return False
-            if tag.text == "Add to cart":
-                return True
-        except:
-            print("Nothing worked")
-
+    def check_availability(self, url) -> bool:
+        if url is None:
+            return False
+        page = requests.get(url, headers=self.custom_header)
+        doc = html.fromstring(page.content)
+        raw_availability = doc.xpath('//*[contains(@class, "fulfillment-add-to-cart-button")]//text()')
+        result = ''.join(raw_availability).strip() if raw_availability else None
+        if result in 'Sold Out':
+            return False
+        if result in 'Add to cart':
+            return True
+        if result in 'Shop Open-Box':
+            return False
         return False

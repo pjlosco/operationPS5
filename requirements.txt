@@ -1,11 +1,5 @@
-bestbuy
-BestBuyAPI==1.0.0
-bs4
-pandas
 pyopenssl>=16.1.0
 python-dateutil==2.6.1
 requests==2.18.4
-selenium
 target-api-client
-tox==2.9.0
-tox-pyenv>=1.1.0
+lxml
