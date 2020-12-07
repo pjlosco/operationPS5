@@ -52,12 +52,16 @@ PRODUCT_INFOS = [
     },
 ]
 
+TARGET_ZIPS = [92694, 43065]
 
-def check_store(logger, client, store_name, store_link, product_name, group_me):
+
+def check_store(logger, client, store_name, store_link, product_name):
     store = store_name
     logger.info(f"Checking {store}")
     result = client.check_availability(store_link)
     if result:
+        logger.info("Available!")
+        group_me = GroupMe()
         group_me.send_message(f"{product_name} is available at {store}!!!")
         link = store_link
         group_me.send_message(link)
@@ -68,7 +72,6 @@ def check_store(logger, client, store_name, store_link, product_name, group_me):
 def main():
     logging.config.fileConfig('/Users/plosco/code/python/operationPS5/logging.conf')
     logger = logging.getLogger(__name__)
-    group_me = GroupMe()
     target = TargetClient()
     amazon = Amazon()
     bestbuy = BestBuyClient()
@@ -86,34 +89,51 @@ def main():
         product_name = product_info["name"]
         logger.info("Checking: " + product_name)
 
+        store = "Target"
+        logger.info("Checking Target")
+        for zip_code in TARGET_ZIPS:
+            try:
+                amount, location = target.check_availability(product_info, zip_code)
+                if amount > 0:
+                    logger.info(f"{amount} units found {location}")
+                    group_me = GroupMe()
+                    group_me.send_message(f"{product_name} is available at target at zip code {zip_code}, {location}!!! {amount} units are left in stock")
+                    link = product_info["target_link"]
+                    group_me.send_message(link)
+                else:
+                    logger.info(f"Not available in {zip_code}")
+            except KeyError:
+                logger.error(f"could not find something in the list for {store}")
+
+        store = "Amazon"
         try:
-            logger.info("Checking Target")
-            amount = target.check_availability(product_info)
-            if amount > 0:
-                logger.info(f"{amount} units found")
-                group_me.send_message(f"{product_name} is available at target!!! {amount} units left in stock")
-                link = product_info["target_link"]
-                group_me.send_message(link)
-            else:
-                logger.info("Not available")
-
-            store = "Amazon"
             store_link = "amazon_link"
-            check_store(logger, amazon, store, product_info[store_link], product_name, group_me)
-
-            store = "BesBuy"
-            store_link = "bestbuy_link"
-            check_store(logger, bestbuy, store, product_info[store_link], product_name, group_me)
-
-            store = "Walmart"
-            store_link = "walmart_link"
-            check_store(logger, walmart, store, product_info[store_link], product_name, group_me)
-
-            store = "NewEgg"
-            store_link = "newegg_link"
-            check_store(logger, newegg, store, product_info[store_link], product_name, group_me)
+            check_store(logger, amazon, store, product_info[store_link], product_name)
         except KeyError:
-            logger.error("could not find something in the list")
+            logger.error(f"could not find something in the list for {store}")
+
+        store = "BesBuy"
+        try:
+            store_link = "bestbuy_link"
+            check_store(logger, bestbuy, store, product_info[store_link], product_name)
+        except KeyError:
+            logger.error(f"could not find something in the list for {store}")
+
+        store = "Walmart"
+        try:
+            store_link = "walmart_link"
+            check_store(logger, walmart, store, product_info[store_link], product_name)
+        except KeyError:
+            logger.error(f"could not find something in the list for {store}")
+
+        store = "NewEgg"
+        try:
+            store_link = "newegg_link"
+            check_store(logger, newegg, store, product_info[store_link], product_name)
+        except KeyError:
+            logger.error(f"could not find something in the list for {store}")
+
+    logger.info("Finished checking on this run")
 
 
 if __name__ == '__main__':

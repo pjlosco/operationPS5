@@ -31,7 +31,7 @@ class GroupMe:
         :return:
         """
         r = requests.post(self._url("/bots/post"), data={'text': text_input, "bot_id" : self.bot_ID})
-        time.sleep(1)
+        time.sleep(2)
         if r.status_code == requests.codes.ok:
             print("Message sent to bot with success")
             return True

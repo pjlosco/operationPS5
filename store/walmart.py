@@ -21,8 +21,8 @@ class Walmart:
         doc = html.fromstring(page.content)
         raw_availability = doc.xpath('//*[contains(@class, "prod-ProductCTA--primary")]//text()')
         result = ''.join(raw_availability).strip() if raw_availability else None
-        if result in 'Get in-stock alert':
+        if str(result) in str("Get in-stock alert"):
             return False
-        if result in 'Add to cart':
+        if str(result) in str("Add to cart"):
             return True
         return False

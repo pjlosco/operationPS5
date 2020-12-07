@@ -7,11 +7,11 @@ import requests
 class Amazon:
 
     HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36'
     }
 
     def __init__(self):
-        self.site = "http://www.amazon.in/dp/"
+        self.site = "http://www.amazon.com/dp/"
         self.custom_header = self.HEADERS
         self.custom_header["Referer"] = self.site
         self.custom_header["Accept"] = "application/json"
@@ -25,11 +25,11 @@ class Amazon:
         # checking availability
         xpath_availability = '//div[@id ="availability"]//text()'
         raw_availability = doc.xpath(xpath_availability)
-        ans = ''.join(raw_availability).strip() if raw_availability else None
-        arr = [
-            'Only 1 left in stock.',
-            'Only 2 left in stock.',
-            'In stock.']
-        if ans in arr:
+        ans = ''.join(raw_availability).strip().rstrip() if raw_availability else None
+        if str(ans).lower() in "In Stock.".lower():
+            return True
+        if str(ans).lower() in "Only 2 left in stock.".lower():
+            return True
+        if str(ans).lower() in "Only 1 left in stock.".lower():
             return True
         return False

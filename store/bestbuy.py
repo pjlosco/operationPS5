@@ -19,12 +19,12 @@ class BestBuyClient:
             return False
         page = requests.get(url, headers=self.custom_header)
         doc = html.fromstring(page.content)
-        raw_availability = doc.xpath('//*[contains(@class, "fulfillment-add-to-cart-button")]//text()')
+        raw_availability = doc.xpath('//div[contains(@class, "fulfillment-add-to-cart-button")]//button[contains(@class, "add-to-cart-button")]//text()')
         result = ''.join(raw_availability).strip() if raw_availability else None
-        if result in 'Sold Out':
+        if str(result).lower() in str("Sold Out").lower():
             return False
-        if result in 'Add to cart':
+        if str(result).lower() in str("Add to cart").lower():
             return True
-        if result in 'Shop Open-Box':
+        if str(result).lower() in str("Shop Open-Box").lower():
             return False
         return False

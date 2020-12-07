@@ -19,8 +19,21 @@ class Sony:
     def check_availability(self) -> bool:
         page = requests.get("https://direct.playstation.com/en-us/consoles/console/playstation5-digital-edition-console.3005817", headers=self.custom_header)
         doc = html.fromstring(page.content)
-        raw_availability = doc.xpath('//div[@id ="lbHeaderH2"]//text()')
+        try:
+            raw_availability = doc.xpath('//div[@id ="lbHeaderH2"]//text()')
+            result = ''.join(raw_availability).strip() if raw_availability else None
+            if str(result) in str('We’re trying to get you in'):
+                return True
+        except:
+            time.sleep(1)
+        raw_availability = doc.xpath('//button[contains(@class, "add-to-cart")]//text()')
         result = ''.join(raw_availability).strip() if raw_availability else None
-        if str(result) in str('We’re trying to get you in'):
+        if str(result) in str('Add'):
+            return True
+        raw_availability = doc.xpath('//div[contains(@class, "button-placeholder")]//text()')
+        result = ''.join(raw_availability).strip() if raw_availability else None
+        if str(result) in str('Out of Stock'):
+            return False
+        if str(result) in str('Add to Cart'):
             return True
         return False

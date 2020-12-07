@@ -24,17 +24,17 @@ class NewEgg:
         try:
             raw_availability = doc.xpath('//div[@id ="ProductBuy"]//span[contains(@class, "btn-message")]//text()')
             result = ''.join(raw_availability).strip() if raw_availability else None
-            if result in 'Sold Out':
+            if str(result) in str("Sold Out"):
                 return False
             raw_availability = doc.xpath('//div[contains(@class, "flags-body")]//text()')
             result = ''.join(raw_availability).strip() if raw_availability else None
-            if str(result) in str('CURRENTLY SOLD OUT'):
+            if str(result) in str("CURRENTLY SOLD OUT"):
                 return False
         except:
             time.sleep(1)
 
         raw_availability = doc.xpath('//div[@id ="ProductBuy"]//button[contains(@class, "btn-primary")]//text()')
         result = ''.join(raw_availability).strip() if raw_availability else None
-        if str(result) in str('Add to cart'):
+        if str(result) in str("Add to cart"):
             return True
         return False

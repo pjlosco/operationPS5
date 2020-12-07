@@ -28,28 +28,30 @@ class TargetClient:
         self.custom_header["Referer"] = site
         self.custom_header["Accept"] = "application/json"
 
-    def check_availability(self, product_info) -> int:
+    def check_availability(self, product_info, zip_code):
         product_id = product_info["target_ID"]
-        url = f"https://redsky.target.com/v1/location_details/{product_id}?zip=92694&state=CA&storeId={self.store_id}"
+        url = f"https://redsky.target.com/v1/location_details/{product_id}?zip={zip_code}&state=CA&storeId={self.store_id}"
         req = urllib.request.Request(url, headers=self.custom_header)
         response = urllib.request.urlopen(req).read().decode()
         data = json.loads(response)
-        status = data["product"]["available_to_promise_store"]["products"][0]["availability_status"]
-        if status == "OUT_OF_STOCK":
+        status = str(data["product"]["available_to_promise_store"]["products"][0]["availability_status"])
+        amount = int(data["product"]["available_to_promise_store"]["products"][0]["available_to_promise_quantity"])
+        if status == str("OUT_OF_STOCK"):
             status = data["product"]["available_to_promise_network"]["availability_status"]
-            if status == "OUT_OF_STOCK":
-                return 0
+            amount = int(data["product"]["available_to_promise_network"]["available_to_promise_quantity"])
+            if status == str("OUT_OF_STOCK"):
+                return 0, "out of stock in network and stores"
             elif status == "IN_STOCK":
-                return int(data["product"]["available_to_promise_network"]["available_to_promise_quantity"])
+                return amount, "online"
             elif status == "PRE_ORDER_SELLABLE":
-                return int(data["product"]["available_to_promise_network"]["available_to_promise_quantity"])
+                return amount, "online"
         elif status == "IN_STOCK":
-            return int(data["product"]["available_to_promise_store"]["products"][0]["available_to_promise_quantity"])
+            return amount, "in store"
         elif status == "PRE_ORDER_SELLABLE":
-            return int(data["product"]["available_to_promise_store"]["products"][0]["available_to_promise_quantity"])
+            return amount, "in store"
 
         print("Unknown status.")
-        return False
+        return 0
 
 
 
